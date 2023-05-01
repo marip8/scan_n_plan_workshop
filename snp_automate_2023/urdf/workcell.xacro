@@ -43,13 +43,13 @@
   <link name="table">
     <visual>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/visual/steel_table.ply"/>
+        <mesh filename="package://snp_support/meshes/steel_table.ply"/>
       </geometry>
       <material name="dark_gray"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/steel_table.ply"/>
+        <mesh filename="package://snp_support/meshes/steel_table.ply"/>
       </geometry>
     </collision>
     <collision>
@@ -80,57 +80,81 @@
   </joint>
 
   <!-- Add End Effector Components -->
+  <xacro:property name="radius" value="${3.75 * 0.0254 / 2.0}"/>
+  <xacro:property name="length" value="${5.875 * 0.0254}"/>
+  <xacro:property name="small_radius" value="${1.0 * 0.0254 / 2.0}"/>
+  <xacro:property name="small_length" value="${2.0 * 0.0254}"/>
   <link name="ee">
     <visual>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/visual/end_effector.stl"/>
+        <mesh filename="package://snp_support/meshes/ati_spindle.ply"/>
       </geometry>
     </visual>
-    <collision name="compliance">
+    <visual>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/afd310.ply"/>
+        <mesh filename="package://snp_support/meshes/ati_hose.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_support/meshes/ati_tool.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_support/meshes/ati_bracket.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_support/meshes/ati_standoff.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_support/meshes/hc10_standoff.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_support/meshes/sensor_bracket.ply"/>
+      </geometry>
+    </visual>
+    <!-- Collision -->
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_support/meshes/ati_spindle.ply"/>
       </geometry>
     </collision>
-    <collision name="spindle">
+    <collision>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/rps100.ply"/>
+        <mesh filename="package://snp_support/meshes/ati_hose.ply"/>
       </geometry>
     </collision>
-    <collision name="backplate">
+    <collision>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/backplate.ply"/>
+        <mesh filename="package://snp_support/meshes/ati_tool.ply"/>
       </geometry>
     </collision>
-    <collision name="frontplate">
+    <collision>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/front.ply"/>
+        <mesh filename="package://snp_support/meshes/ati_bracket.ply"/>
       </geometry>
     </collision>
-    <collision name="camera1">
+    <collision>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/camera1.ply"/>
+        <mesh filename="package://snp_support/meshes/ati_standoff.ply"/>
       </geometry>
     </collision>
-    <collision name="camera2">
+    <collision>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/camera2.ply"/>
+        <mesh filename="package://snp_support/meshes/hc10_standoff.ply"/>
       </geometry>
     </collision>
-    <collision name="sidebracket1">
+    <collision>
       <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/bracket1.ply"/>
+        <mesh filename="package://snp_support/meshes/sensor_bracket.ply"/>
       </geometry>
-    </collision>
-    <collision name="sidebracket2">
-      <geometry>
-        <mesh filename="package://snp_automate_2023/meshes/collision/bracket2.ply"/>
-      </geometry>
-    </collision>
-    <collision name="tcp">
-      <geometry>
-        <cylinder radius="${1.5 * 0.0254}" length="${2.0 * 0.0254}"/>
-      </geometry>
-      <origin xyz="${-0.263 + 1.5 * 0.0254} 0.0 0.083" rpy="0 ${radians(-90)} 0"/>
     </collision>
   </link>
 
@@ -139,7 +163,7 @@
     <child link="ee"/>
   </joint>
 
-  <xacro:property name="camera_cal" value="${load_yaml('$(find snp_automate_2023)/config/camera_calibration.yaml')}" />
+  <xacro:property name="camera_cal" value="${load_yaml('$(find snp_support)/config/camera_calibration.yaml')}" />
 
   <link name="camera_color_optical_frame"/>
   <joint name="tool0_to_camera" type="fixed">
@@ -162,7 +186,6 @@
   <joint name="sand_tcp_joint" type="fixed">
     <parent link="tool_flange"/>
     <child link="sand_tcp"/>
-    <origin xyz="-0.26261 0 ${0.08259 + dt_flange_width}" rpy="${radians(-90)} 0 ${radians(90)}"/>
+    <origin xyz="-0.186 0.0 ${0.08325 + dt_flange_width}" rpy="0.0 ${radians(90)} 0.0"/>
   </joint>
-
 </robot>
