@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="target_file" default="$(find-pkg-share snp_bringup_ros2)/calibration/charuco_target_7x5.yaml" />
+  <arg name="path" default="$(env HOME)/calibration_data"/>
+  <arg name="homography_threshold" default="1.0" />
+
+  <include file="$(find-pkg-share rct_ros_tools_rclcpp)/launch/hand_eye_calibration.launch.xml">
+    <arg name="data_path" value="$(var path)/data.yaml"/>
+    <arg name="target_file" value="$(var target_file)"/>
+    <arg name="homography_threshold" value="$(var homography_threshold)"/>
+    <arg name="intrinsics" value="$(find-pkg-share snp_bringup_ros2)/calibration/intrinsics.yaml"/>
+    <arg name="output_file" value="$(var path)/calibration.yaml"/>
+    <!-- Transform guess TF frames -->
+    <arg name="target_mount_frame" value="$(var robot)_base_link"/>
+    <arg name="target_frame" value="$(var robot)_cal_target_frame"/>
+    <arg name="camera_mount_frame" value="$(var robot)_tool0"/>
+    <arg name="camera_frame" value="$(var robot)_camera_calibrated_frame"/>
+  </include>
+</launch>
