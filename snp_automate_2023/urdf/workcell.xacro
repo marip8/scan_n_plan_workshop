@@ -43,13 +43,13 @@
   <link name="table">
     <visual>
       <geometry>
-        <mesh filename="package://snp_support/meshes/steel_table.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/steel_table.ply"/>
       </geometry>
       <material name="dark_gray"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://snp_support/meshes/steel_table.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/steel_table.ply"/>
       </geometry>
     </collision>
     <collision>
@@ -87,73 +87,73 @@
   <link name="ee">
     <visual>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_spindle.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_spindle.ply"/>
       </geometry>
     </visual>
     <visual>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_hose.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_hose.ply"/>
       </geometry>
     </visual>
     <visual>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_tool.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_tool.ply"/>
       </geometry>
     </visual>
     <visual>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_bracket.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_bracket.ply"/>
       </geometry>
     </visual>
     <visual>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_standoff.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_standoff.ply"/>
       </geometry>
     </visual>
     <visual>
       <geometry>
-        <mesh filename="package://snp_support/meshes/hc10_standoff.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/hc10_standoff.ply"/>
       </geometry>
     </visual>
     <visual>
       <geometry>
-        <mesh filename="package://snp_support/meshes/sensor_bracket.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/sensor_bracket.ply"/>
       </geometry>
     </visual>
     <!-- Collision -->
     <collision>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_spindle.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_spindle.ply"/>
       </geometry>
     </collision>
     <collision>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_hose.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_hose.ply"/>
       </geometry>
     </collision>
     <collision>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_tool.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_tool.ply"/>
       </geometry>
     </collision>
     <collision>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_bracket.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_bracket.ply"/>
       </geometry>
     </collision>
     <collision>
       <geometry>
-        <mesh filename="package://snp_support/meshes/ati_standoff.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/ati_standoff.ply"/>
       </geometry>
     </collision>
     <collision>
       <geometry>
-        <mesh filename="package://snp_support/meshes/hc10_standoff.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/hc10_standoff.ply"/>
       </geometry>
     </collision>
     <collision>
       <geometry>
-        <mesh filename="package://snp_support/meshes/sensor_bracket.ply"/>
+        <mesh filename="package://snp_automate_2023/meshes/sensor_bracket.ply"/>
       </geometry>
     </collision>
   </link>
@@ -163,7 +163,7 @@
     <child link="ee"/>
   </joint>
 
-  <xacro:property name="camera_cal" value="${load_yaml('$(find snp_support)/config/camera_calibration.yaml')}" />
+  <xacro:property name="camera_cal" value="${load_yaml('$(find snp_automate_2023)/config/camera_calibration.yaml')}" />
 
   <link name="camera_color_optical_frame"/>
   <joint name="tool0_to_camera" type="fixed">
