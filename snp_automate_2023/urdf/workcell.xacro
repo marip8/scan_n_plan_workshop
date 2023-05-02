@@ -161,9 +161,10 @@
   <joint name="tool0_to_ee" type="fixed">
     <parent link="tool0"/>
     <child link="ee"/>
+    <origin rpy="0.0 0.0 ${radians(45)}"/>
   </joint>
 
-  <xacro:property name="camera_cal" value="${load_yaml('$(find snp_automate_2023)/config/camera_calibration.yaml')}" />
+  <xacro:property name="camera_cal" value="${load_yaml('$(find snp_automate_2023)/config/calibration.yaml')}" />
 
   <link name="camera_color_optical_frame"/>
   <joint name="tool0_to_camera" type="fixed">
