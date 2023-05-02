@@ -120,6 +120,11 @@
         <mesh filename="package://snp_automate_2023/meshes/sensor_bracket.ply"/>
       </geometry>
     </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/sponge.ply"/>
+      </geometry>
+    </visual>
     <!-- Collision -->
     <collision>
       <geometry>
@@ -156,6 +161,11 @@
         <mesh filename="package://snp_automate_2023/meshes/sensor_bracket.ply"/>
       </geometry>
     </collision>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/sponge.ply"/>
+      </geometry>
+    </collision>
   </link>
 
   <joint name="tool0_to_ee" type="fixed">
@@ -186,7 +196,10 @@
   <link name="sand_tcp"/>
   <joint name="sand_tcp_joint" type="fixed">
     <parent link="tool_flange"/>
+<!--    <origin xyz="-0.158 -0.158 0.123" rpy="0.0 ${radians(90)} ${radians(-135)}"/>-->
+    <origin xyz="-0.149 -0.149 0.123" rpy="0.0 ${radians(90)} ${radians(-135)}"/>
+<!--    <parent link="ee"/>-->
+<!--    <origin xyz="${-0.186 - 0.038} 0.0 ${0.08325}" rpy="0.0 ${radians(90)} 0.0"/>-->
     <child link="sand_tcp"/>
-    <origin xyz="-0.186 0.0 ${0.08325 + dt_flange_width}" rpy="0.0 ${radians(90)} 0.0"/>
   </joint>
 </robot>
