@@ -16,6 +16,8 @@
 #include <tesseract_process_managers/taskflow_generators/raster_global_taskflow.h>
 #include <tesseract_process_managers/core/default_process_planners.h>
 
+#include "cartesian_time_parameterization.hpp"
+
 /**
  * @brief Creates a task flow graph for planning transition moves using a simple planner and TrajOpt with time
  * parameterization
@@ -122,5 +124,5 @@ tesseract_planning::TaskflowGenerator::UPtr createRasterTaskflow()
 {
   return std::make_unique<tesseract_planning::RasterGlobalTaskflow>(
       tesseract_planning::createDescartesOnlyGenerator(), createFreespaceTaskflow(), createTransitionTaskflow(),
-      tesseract_planning::createCartesianGenerator());
+      tesseract_planning::createTrajOptGenerator());
 }
