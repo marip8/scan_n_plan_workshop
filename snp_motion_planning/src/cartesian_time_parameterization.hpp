@@ -1,12 +1,11 @@
 #pragma once
 
-#include <kdl/path_line.hpp>
+#include <kdl/path_roundedcomposite.hpp>
 #include <kdl/rotational_interpolation_sa.hpp>
 #include <kdl/trajectory_segment.hpp>
 #include <kdl/velocityprofile_trap.hpp>
 #include <kdl/velocityprofile_traphalf.hpp>
-#include <kdl/velocityprofile_rect.hpp>
-#include <kdl/velocityprofile_spline.hpp>
+#include <kdl/utilities/error.h>
 #include <tesseract_kinematics/core/joint_group.h>
 #include <tesseract_time_parameterization/trajectory_container.h>
 
@@ -36,82 +35,76 @@ namespace snp_motion_planning
 class CartesianTimeParameterization
 {
 public:
-  CartesianTimeParameterization(tesseract_kinematics::JointGroup::ConstPtr motion_group, const std::string& tcp,
+  using Ptr = std::shared_ptr<CartesianTimeParameterization>;
+  using ConstPtr = std::shared_ptr<const CartesianTimeParameterization>;
+
+  CartesianTimeParameterization(tesseract_kinematics::JointGroup::UPtr motion_group, const std::string& tcp,
                                 const double max_translational_vel, const double max_translational_acc)
-    : motion_group(motion_group)
+    : motion_group(std::move(motion_group))
     , tcp(tcp)
     , max_translational_vel(max_translational_vel)
     , max_translational_acc(max_translational_acc)
   {
   }
 
-  CartesianTimeParameterization(const CartesianTimeParameterization&) = default;
-  CartesianTimeParameterization& operator=(const CartesianTimeParameterization&) = default;
-  CartesianTimeParameterization(CartesianTimeParameterization&&) = default;
-  CartesianTimeParameterization& operator=(CartesianTimeParameterization&&) = default;
-
   bool compute(tesseract_planning::TrajectoryContainer& trajectory, double max_velocity_scaling_factor = 1.0,
                double max_acceleration_scaling_factor = 1.0) const
   {
     const double eq_radius = 1.0;  // max_translational_velocity / max_rotational_velocity;
+    KDL::RotationalInterpolation* rot_interp = new KDL::RotationalInterpolation_SingleAxis();
+    auto path = new KDL::Path_RoundedComposite(0.001, eq_radius, rot_interp);
 
-    // Set the first point to zero velocity
-    trajectory.setData(0, Eigen::VectorXd::Zero(trajectory.dof()), Eigen::VectorXd::Zero(trajectory.dof()), 0.0);
-
-    double duration = 0.0;
-    for (Eigen::Index i = 1; i < trajectory.size() - 1; ++i)
+    std::vector<double> times;
+    times.reserve(trajectory.size());
+    for (Eigen::Index i = 0; i < trajectory.size(); ++i)
     {
-      const Eigen::VectorXd& start_joints = trajectory.getPosition(i - 1);
-      const Eigen::VectorXd& end_joints = trajectory.getPosition(i);
-
-      // Perform FK to get Cartesian poses
-      const KDL::Frame start = toKDL(motion_group->calcFwdKin(start_joints).at(tcp));
-      const KDL::Frame end = toKDL(motion_group->calcFwdKin(end_joints).at(tcp));
-
-      // Convert to KDL::Path
-      KDL::RotationalInterpolation* rot_interp = new KDL::RotationalInterpolation_SingleAxis();
-      KDL::Path* path = new KDL::Path_Line(start, end, rot_interp, eq_radius);
-      const double path_length = path->PathLength();
-
-      // Check the path length for validity
-      if (path_length < std::numeric_limits<double>::epsilon())  // avoid division by zero
+      // Perform FK to get Cartesian pose
+      const KDL::Frame pose = toKDL(motion_group->calcFwdKin(trajectory.getPosition(i)).at(tcp));
+      try
       {
-        CONSOLE_BRIDGE_logError("Zero path length");
+        path->Add(pose);
+      }
+      catch (KDL::Error& ex)
+      {
+        std::stringstream ss;
+        ss << "KDL Exception #" << ex.GetType() << ": " << ex.Description();
+        CONSOLE_BRIDGE_logError(ss.str().c_str());
         return false;
       }
 
-      KDL::VelocityProfile* prof;
-      if (i == 1)
-      {
-        // Half trapezoid velocity profile (front)
-        prof = new KDL::VelocityProfile_TrapHalf(max_velocity_scaling_factor * max_translational_vel,
-                                                 max_acceleration_scaling_factor * max_translational_acc, true);
-      }
-      else if (i == trajectory.size() - 2)
-      {
-        // Half trapezoid velocity profile (back)
-        prof = new KDL::VelocityProfile_TrapHalf(max_velocity_scaling_factor * max_translational_vel,
-                                                 max_acceleration_scaling_factor * max_translational_acc, false);
-      }
-      else
-      {
-        // Rectangular velocity profile
-        prof = new KDL::VelocityProfile_Rectangular(max_velocity_scaling_factor * max_translational_vel);
-      }
+      // Estimate the time to this waypoint with half-trapezoid velocity profile
+      KDL::VelocityProfile_TrapHalf prof(max_velocity_scaling_factor * max_translational_vel,
+                                         max_acceleration_scaling_factor * max_translational_acc, true);
+      double path_length = path->PathLength() > std::numeric_limits<double>::epsilon() ?
+                               path->PathLength() :
+                               std::numeric_limits<double>::epsilon();
 
-      prof->SetProfile(0.0, path_length);
-      const double dt = prof->Duration();
+      prof.SetProfile(0.0, path_length);
+      times.push_back(prof.Duration());
+    }
+
+    //
+    double path_length = path->PathLength();
+    auto prof = new KDL::VelocityProfile_Trap(max_velocity_scaling_factor * max_translational_vel,
+                                              max_acceleration_scaling_factor * max_translational_acc);
+    prof->SetProfile(0.0, path_length);
+    const double duration = prof->Duration();
+
+    // Add the last time with the duration from a double ended trapezoidal velocity profile
+    times.back() = duration;
+
+    // Update the trajectory
+    for (Eigen::Index i = 0; i < trajectory.size(); ++i)
+    {
+      const Eigen::VectorXd& joints = trajectory.getPosition(i);
+      double dt = times[i];
 
       // Compute the joint velocity and acceleration
-      KDL::Trajectory_Segment traj(path, prof);
-      KDL::Twist start_vel = traj.Vel(0.0);
-      KDL::Twist start_acc = traj.Acc(0.0);
-      KDL::Twist end_vel = traj.Vel(dt);
-      KDL::Twist end_acc = traj.Acc(dt);
-
-      const Eigen::VectorXd joint_vel = computeJointVelocity(fromKDL(traj.Vel(dt)), end_joints);
-      const Eigen::VectorXd joint_acc = computeJointAcceleration(fromKDL(traj.Acc(dt)), end_joints);
-
+      KDL::Trajectory_Segment traj(path, prof, false);
+      KDL::Twist vel = traj.Vel(dt);
+      KDL::Twist acc = traj.Acc(dt);
+      const Eigen::VectorXd joint_vel = computeJointVelocity(fromKDL(vel), joints);
+      const Eigen::VectorXd joint_acc = computeJointAcceleration(fromKDL(acc), joints);
       //      const Eigen::VectorXd joint_vel = (end_joints - start_joints) / dt;
       //      const Eigen::VectorXd joint_acc = (joint_vel - trajectory.getVelocity(i - 1)) / dt;
 
@@ -138,16 +131,9 @@ public:
         return false;
       }
 
-      // Increment the duration
-      duration += dt;
-
-      // Update the trajectory
-      trajectory.setData(i, joint_vel, joint_acc, duration);
+      // Update the trajectory container
+      trajectory.setData(i, joint_vel, joint_acc, dt);
     }
-
-    // Set the last point to zero velocity/acceleration
-    trajectory.setData(trajectory.size(), Eigen::VectorXd::Zero(trajectory.dof()),
-                       Eigen::VectorXd::Zero(trajectory.dof()), duration);
 
     return true;
   }
@@ -190,7 +176,7 @@ private:
     return ret;
   }
 
-  tesseract_kinematics::JointGroup::ConstPtr motion_group;
+  tesseract_kinematics::JointGroup::UPtr motion_group;
   const std::string tcp;
   const double max_translational_vel;
   const double max_translational_acc;
