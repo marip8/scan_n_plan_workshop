@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<ExecSimServer>("exec_sim_server");
+  auto node = std::make_shared<ExecSimServer>("robot_enalble_server_sim");
 
   rclcpp::spin(node);
   rclcpp::shutdown();
