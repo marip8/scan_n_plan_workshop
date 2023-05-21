@@ -139,15 +139,18 @@ tesseract_planning::TaskflowGenerator::UPtr createSNPRasterTaskflow()
       graph->addNode(std::make_unique<tesseract_planning::DiscreteContactCheckTaskGenerator>(), true);
 
   // Time parameterization
-  int time_param =
+  int cartesian_time_param =
       graph->addNode(std::make_unique<snp_motion_planning::CartesianTimeParameterizationTaskGenerator>(), true);
+  int isp_time_param =
+      graph->addNode(std::make_unique<tesseract_planning::IterativeSplineParameterizationTaskGenerator>(), true);
 
   graph->addEdges(check_input, { tesseract_planning::GraphTaskflow::ERROR_NODE, has_seed });
   graph->addEdges(has_seed, { tesseract_planning::GraphTaskflow::ERROR_NODE, seed_min_length });
   graph->addEdges(seed_min_length, { tesseract_planning::GraphTaskflow::ERROR_NODE, trajopt });
   graph->addEdges(trajopt, { tesseract_planning::GraphTaskflow::ERROR_NODE, trajopt_collision });
-  graph->addEdges(trajopt_collision, { tesseract_planning::GraphTaskflow::ERROR_NODE, time_param });
-  graph->addEdges(time_param,
+  graph->addEdges(trajopt_collision, { tesseract_planning::GraphTaskflow::ERROR_NODE, cartesian_time_param });
+  graph->addEdges(cartesian_time_param, { isp_time_param, tesseract_planning::GraphTaskflow::DONE_NODE });
+  graph->addEdges(isp_time_param,
                   { tesseract_planning::GraphTaskflow::ERROR_NODE, tesseract_planning::GraphTaskflow::DONE_NODE });
 
   return graph;
