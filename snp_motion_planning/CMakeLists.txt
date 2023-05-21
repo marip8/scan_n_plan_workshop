@@ -24,7 +24,8 @@ find_package(descartes_light REQUIRED)
 find_package(tesseract_command_language REQUIRED)
 find_package(tesseract_process_managers REQUIRED)
 find_package(tesseract_kinematics REQUIRED)
-find_package(LAPACK REQUIRED) # Requried for ikfast
+find_package(tesseract_collision REQUIRED)
+find_package(LAPACK REQUIRED) # Requrired for ikfast
 
 # Planning server
 add_executable(${PROJECT_NAME}_node src/planning_server.cpp)
@@ -33,7 +34,8 @@ target_link_libraries(
   ${PROJECT_NAME}_node
   tesseract::tesseract_command_language
   tesseract::tesseract_process_managers
-  tesseract::tesseract_kinematics_kdl)
+  tesseract::tesseract_kinematics_kdl
+  tesseract::tesseract_collision_vhacd_convex_decomposition)
 
 # Plugin Library
 add_library(${PROJECT_NAME}_plugins SHARED src/motoman_hc10_ikfast_plugin.cpp)

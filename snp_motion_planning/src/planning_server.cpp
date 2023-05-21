@@ -17,6 +17,8 @@
 #include <snp_msgs/srv/generate_motion_plan.hpp>
 #include <tf2_eigen/tf2_eigen.h>
 
+#include <tesseract_collision/vhacd/convex_decomposition_vhacd.h>
+
 #include <tesseract_time_parameterization/instructions_trajectory.h>
 
 static const std::string TRANSITION_PLANNER = "TRANSITION";
@@ -67,11 +69,21 @@ static tesseract_environment::Commands createScanAdditionCommands(const std::str
                                                                   const std::string& mesh_frame,
                                                                   const std::vector<std::string>& touch_links)
 {
-  std::vector<tesseract_geometry::ConvexMesh::Ptr> geometries =
-      tesseract_geometry::createMeshFromPath<tesseract_geometry::ConvexMesh>(filename);
+  std::vector<tesseract_geometry::Mesh::Ptr> meshes =
+      tesseract_geometry::createMeshFromPath<tesseract_geometry::Mesh>(filename);
+
+  tesseract_collision::VHACDParameters params;
+  tesseract_collision::ConvexDecompositionVHACD convex_decomp(params);
+  std::vector<tesseract_geometry::ConvexMesh::Ptr> geometries;
+  for (tesseract_geometry::Mesh::Ptr mesh : meshes)
+  {
+    std::vector<tesseract_geometry::ConvexMesh::Ptr> convex_meshes =
+        convex_decomp.compute(*mesh->getVertices(), *mesh->getFaces());
+    geometries.insert(geometries.end(), convex_meshes.begin(), convex_meshes.end());
+  }
 
   tesseract_scene_graph::Link link("scan");
-  for (tesseract_geometry::ConvexMesh::Ptr geometry : geometries)
+  for (tesseract_geometry::Geometry::Ptr geometry : geometries)
   {
     tesseract_scene_graph::Collision::Ptr collision = std::make_shared<tesseract_scene_graph::Collision>();
     collision->geometry = geometry;
