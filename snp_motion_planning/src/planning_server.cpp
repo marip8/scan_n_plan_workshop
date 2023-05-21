@@ -329,10 +329,23 @@ private:
       auto ci = plan_result.results->as<tesseract_planning::CompositeInstruction>();
 
       // Convert to joint trajectory
-      tesseract_common::JointTrajectory jt = toJointTrajectory(ci);
-      tesseract_common::JointTrajectory speed_limited_jt = tcpSpeedLimiter(jt, MAX_TCP_SPEED, manip_info.tcp_frame);
-      plotter_->plotTrajectory(speed_limited_jt, *env_->getStateSolver());
-      res->motion_plan = tesseract_rosutils::toMsg(speed_limited_jt, env_->getState());
+      tesseract_common::JointTrajectory jt;
+      double last_time = 0.0;
+      for (tesseract_planning::Instruction& i : ci)
+      {
+        auto speed_limited_segment_jt = tcpSpeedLimiter(
+            toJointTrajectory(i.as<tesseract_planning::CompositeInstruction>()), MAX_TCP_SPEED, manip_info.tcp_frame);
+        for (auto& state : speed_limited_segment_jt)
+        {
+          state.time += last_time;
+          jt.push_back(state);
+        }
+
+        last_time = jt.back().time;
+      }
+
+      plotter_->plotTrajectory(jt, *env_->getStateSolver());
+      res->motion_plan = tesseract_rosutils::toMsg(jt, env_->getState());
 
       res->message = "Succesfully planned motion";
       res->success = true;
