@@ -42,8 +42,7 @@ private:
 };
 
 template <typename FloatType>
-typename tesseract_planning::DescartesDefaultPlanProfile<FloatType>::Ptr
-createDescartesPlanProfile(const std::string& tcp, const double speed)
+typename tesseract_planning::DescartesDefaultPlanProfile<FloatType>::Ptr createDescartesPlanProfile()
 {
   auto profile = std::make_shared<tesseract_planning::DescartesDefaultPlanProfile<FloatType>>();
   profile->num_threads = static_cast<int>(std::thread::hardware_concurrency());
@@ -54,23 +53,23 @@ createDescartesPlanProfile(const std::string& tcp, const double speed)
 
   // Use the default state and edge evaluators
   profile->state_evaluator = nullptr;
-  profile->edge_evaluator = [&tcp, &speed](const tesseract_planning::DescartesProblem<FloatType>& prob) ->
-      typename descartes_light::EdgeEvaluator<FloatType>::Ptr {
-        auto eval = std::make_shared<descartes_light::CompoundEdgeEvaluator<FloatType>>();
+  profile->edge_evaluator = [](const tesseract_planning::DescartesProblem<FloatType>& prob) ->
+      typename descartes_light::EdgeEvaluator<FloatType>::Ptr
+  {
+    auto eval = std::make_shared<descartes_light::CompoundEdgeEvaluator<FloatType>>();
 
-        // Nominal Euclidean distance
-        eval->evaluators.push_back(std::make_shared<descartes_light::EuclideanDistanceEdgeEvaluator<FloatType>>());
-        eval->evaluators.push_back(std::make_shared<ConstantTCPVelocityEdgeEvaluator<FloatType>>(prob.manip, tcp, speed));
+    // Nominal Euclidean distance
+    eval->evaluators.push_back(std::make_shared<descartes_light::EuclideanDistanceEdgeEvaluator<FloatType>>());
 
-        // Penalize wrist motion
-        //        Eigen::Matrix<FloatType, Eigen::Dynamic, 1> wrist_mask(prob.manip->numJoints());
-        //        FloatType weight = static_cast<FloatType>(5.0);
-        //        wrist_mask << 0.0, 0.0, 0.0, weight, weight, weight;
-        //        eval->evaluators.push_back(
-        //            std::make_shared<descartes_light::EuclideanDistanceEdgeEvaluator<FloatType>>(wrist_mask));
+    // Penalize wrist motion
+    //        Eigen::Matrix<FloatType, Eigen::Dynamic, 1> wrist_mask(prob.manip->numJoints());
+    //        FloatType weight = static_cast<FloatType>(5.0);
+    //        wrist_mask << 0.0, 0.0, 0.0, weight, weight, weight;
+    //        eval->evaluators.push_back(
+    //            std::make_shared<descartes_light::EuclideanDistanceEdgeEvaluator<FloatType>>(wrist_mask));
 
-        return eval;
-      };
+    return eval;
+  };
 
   profile->vertex_evaluator = nullptr;
 

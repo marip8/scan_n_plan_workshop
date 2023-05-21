@@ -145,14 +145,16 @@ public:
       pd->addProfile<tesseract_planning::IterativeSplineParameterizationProfile>(
           tesseract_planning::profile_ns::ITERATIVE_SPLINE_PARAMETERIZATION_DEFAULT_NAMESPACE, PROFILE,
           std::make_shared<tesseract_planning::IterativeSplineParameterizationProfile>());
+      pd->addProfile<tesseract_planning::DescartesPlanProfile<float>>(
+          tesseract_planning::profile_ns::DESCARTES_DEFAULT_NAMESPACE, PROFILE, createDescartesPlanProfile<float>());
 
       {
-        vel_trans_ = get<double>(node_, "max_translational_vel");
+        auto vel_trans = get<double>(node_, "max_translational_vel");
         auto vel_rot = get<double>(node_, "max_rotational_vel");
         auto acc_trans = get<double>(node_, "max_translational_acc");
         auto acc_rot = get<double>(node_, "max_rotational_acc");
         auto cart_time_param_profile = std::make_shared<snp_motion_planning::CartesianTimeParameterizationProfile>(
-            vel_trans_, vel_rot, acc_trans, acc_rot);
+            vel_trans, vel_rot, acc_trans, acc_rot);
         pd->addProfile<snp_motion_planning::CartesianTimeParameterizationProfile>("CARTESIAN_TIME_PARAMETERIZATION",
                                                                                   PROFILE, cart_time_param_profile);
       }
@@ -301,12 +303,6 @@ private:
       const std::string& base_frame = req->tool_paths.paths.at(0).segments.at(0).header.frame_id;
       tesseract_planning::ManipulatorInfo manip_info(req->motion_group, base_frame, req->tcp_frame);
 
-      {
-        planning_server_->getProfiles()->addProfile<tesseract_planning::DescartesPlanProfile<float>>(
-            tesseract_planning::profile_ns::DESCARTES_DEFAULT_NAMESPACE, PROFILE,
-            createDescartesPlanProfile<float>(req->tcp_frame, vel_trans_));
-      }
-
       tesseract_planning::ProcessPlanningRequest plan_req;
       plan_req.name = RASTER_PLANNER;
       plan_req.instructions = createProgram(manip_info, fromMsg(req->tool_paths));
@@ -362,7 +358,6 @@ private:
   rclcpp::Node::SharedPtr node_;
   const bool verbose_{ false };
   const std::vector<std::string> touch_links_;
-  double vel_trans_;
 
   tesseract_environment::Environment::Ptr env_;
   tesseract_planning::ProcessPlanningServer::Ptr planning_server_;
