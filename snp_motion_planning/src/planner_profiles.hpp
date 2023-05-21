@@ -9,7 +9,41 @@
 #include <tesseract_motion_planners/simple/profile/simple_planner_lvs_plan_profile.h>
 
 template <typename FloatType>
-typename tesseract_planning::DescartesDefaultPlanProfile<FloatType>::Ptr createDescartesPlanProfile()
+class ConstantTCPVelocityEdgeEvaluator : public descartes_light::EdgeEvaluator<FloatType>
+{
+public:
+  ConstantTCPVelocityEdgeEvaluator(tesseract_kinematics::JointGroup::ConstPtr motion_group, std::string tcp, double vel)
+    : descartes_light::EdgeEvaluator<FloatType>(), motion_group_(motion_group), tcp_(std::move(tcp)), vel_(vel)
+  {
+  }
+
+  std::pair<bool, FloatType> evaluate(const descartes_light::State<FloatType>& start,
+                                      const descartes_light::State<FloatType>& end) const override
+  {
+    Eigen::VectorXd start_joints = start.values.template cast<double>();
+    Eigen::VectorXd end_joints = end.values.template cast<double>();
+
+    Eigen::Isometry3d start_pose = motion_group_->calcFwdKin(start_joints).at(tcp_);
+    Eigen::Isometry3d end_pose = motion_group_->calcFwdKin(end_joints).at(tcp_);
+    double dt = (end_pose.translation() - start_pose.translation()).norm() / vel_;
+    Eigen::VectorXd joint_vel = (end_joints - start_joints) / dt;
+
+    Eigen::ArrayXd ratio = joint_vel.array() / motion_group_->getLimits().velocity_limits.array();
+    bool valid = (ratio <= 1.0).all();
+    double score = ratio.mean();
+
+    return std::make_pair(valid, static_cast<FloatType>(score));
+  }
+
+private:
+  tesseract_kinematics::JointGroup::ConstPtr motion_group_;
+  const std::string tcp_;
+  const double vel_;
+};
+
+template <typename FloatType>
+typename tesseract_planning::DescartesDefaultPlanProfile<FloatType>::Ptr
+createDescartesPlanProfile()
 {
   auto profile = std::make_shared<tesseract_planning::DescartesDefaultPlanProfile<FloatType>>();
   profile->num_threads = static_cast<int>(std::thread::hardware_concurrency());
