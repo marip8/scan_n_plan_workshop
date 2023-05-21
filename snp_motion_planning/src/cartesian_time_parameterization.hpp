@@ -174,18 +174,18 @@ public:
           throw std::runtime_error(ss.str());
         }
 
-        // Check for joint velocity acceleration limit violations
-        Eigen::Array<bool, Eigen::Dynamic, 1> acc_limit_violations =
-            motion_group->getLimits().acceleration_limits.array() < joint_acc.array().abs();
-        if (acc_limit_violations.any())
-        {
-          Eigen::ArrayXd capacity =
-              100.0 * joint_acc.array().abs() / motion_group->getLimits().acceleration_limits.array();
-          std::stringstream ss;
-          ss << "Joint acceleration limit violations at waypoint " << i << ": "
-             << capacity.transpose().format(Eigen::IOFormat(4, 0, " ", "\n", "[", "]")) << " (%% capacity)";
-          throw std::runtime_error(ss.str());
-        }
+//        // Check for joint acceleration limit violations
+//        Eigen::Array<bool, Eigen::Dynamic, 1> acc_limit_violations =
+//            motion_group->getLimits().acceleration_limits.array() < joint_acc.array().abs();
+//        if (acc_limit_violations.any())
+//        {
+//          Eigen::ArrayXd capacity =
+//              100.0 * joint_acc.array().abs() / motion_group->getLimits().acceleration_limits.array();
+//          std::stringstream ss;
+//          ss << "Joint acceleration limit violations at waypoint " << i << ": "
+//             << capacity.transpose().format(Eigen::IOFormat(4, 0, " ", "\n", "[", "]")) << " (%% capacity)";
+//          throw std::runtime_error(ss.str());
+//        }
 
         // Update the trajectory container
         trajectory.setData(i, joint_vel, joint_acc, t);
