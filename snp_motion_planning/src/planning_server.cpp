@@ -136,8 +136,6 @@ public:
                                                              PROFILE, createTrajOptToolZFreePlanProfile());
       pd->addProfile<tesseract_planning::TrajOptCompositeProfile>(
           tesseract_planning::profile_ns::TRAJOPT_DEFAULT_NAMESPACE, PROFILE, createTrajOptProfile());
-      pd->addProfile<tesseract_planning::DescartesPlanProfile<float>>(
-          tesseract_planning::profile_ns::DESCARTES_DEFAULT_NAMESPACE, PROFILE, createDescartesPlanProfile<float>());
       pd->addProfile<tesseract_planning::CheckInputProfile>(
           tesseract_planning::profile_ns::CHECK_INPUT_DEFAULT_NAMESPACE, PROFILE,
           std::make_shared<tesseract_planning::CheckInputProfile>());
@@ -149,12 +147,12 @@ public:
           std::make_shared<tesseract_planning::IterativeSplineParameterizationProfile>());
 
       {
-        auto vel_trans = get<double>(node_, "max_translational_vel");
+        vel_trans_ = get<double>(node_, "max_translational_vel");
         auto vel_rot = get<double>(node_, "max_rotational_vel");
         auto acc_trans = get<double>(node_, "max_translational_acc");
         auto acc_rot = get<double>(node_, "max_rotational_acc");
         auto cart_time_param_profile = std::make_shared<snp_motion_planning::CartesianTimeParameterizationProfile>(
-            vel_trans, vel_rot, acc_trans, acc_rot);
+            vel_trans_, vel_rot, acc_trans, acc_rot);
         pd->addProfile<snp_motion_planning::CartesianTimeParameterizationProfile>("CARTESIAN_TIME_PARAMETERIZATION",
                                                                                   PROFILE, cart_time_param_profile);
       }
@@ -303,6 +301,12 @@ private:
       const std::string& base_frame = req->tool_paths.paths.at(0).segments.at(0).header.frame_id;
       tesseract_planning::ManipulatorInfo manip_info(req->motion_group, base_frame, req->tcp_frame);
 
+      {
+        planning_server_->getProfiles()->addProfile<tesseract_planning::DescartesPlanProfile<float>>(
+            tesseract_planning::profile_ns::DESCARTES_DEFAULT_NAMESPACE, PROFILE,
+            createDescartesPlanProfile<float>(req->tcp_frame, vel_trans_));
+      }
+
       tesseract_planning::ProcessPlanningRequest plan_req;
       plan_req.name = RASTER_PLANNER;
       plan_req.instructions = createProgram(manip_info, fromMsg(req->tool_paths));
@@ -326,8 +330,9 @@ private:
 
       // Convert to joint trajectory
       tesseract_common::JointTrajectory jt = toJointTrajectory(ci);
-      plotter_->plotTrajectory(jt, *env_->getStateSolver());
-      res->motion_plan = tesseract_rosutils::toMsg(jt, env_->getState());
+      tesseract_common::JointTrajectory speed_limited_jt = tcpSpeedLimiter(jt, MAX_TCP_SPEED, manip_info.tcp_frame);
+      plotter_->plotTrajectory(speed_limited_jt, *env_->getStateSolver());
+      res->motion_plan = tesseract_rosutils::toMsg(speed_limited_jt, env_->getState());
 
       res->message = "Succesfully planned motion";
       res->success = true;
@@ -344,6 +349,7 @@ private:
   rclcpp::Node::SharedPtr node_;
   const bool verbose_{ false };
   const std::vector<std::string> touch_links_;
+  double vel_trans_;
 
   tesseract_environment::Environment::Ptr env_;
   tesseract_planning::ProcessPlanningServer::Ptr planning_server_;

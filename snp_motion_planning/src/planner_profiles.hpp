@@ -43,7 +43,7 @@ private:
 
 template <typename FloatType>
 typename tesseract_planning::DescartesDefaultPlanProfile<FloatType>::Ptr
-createDescartesPlanProfile()
+createDescartesPlanProfile(const std::string& tcp, const double speed)
 {
   auto profile = std::make_shared<tesseract_planning::DescartesDefaultPlanProfile<FloatType>>();
   profile->num_threads = static_cast<int>(std::thread::hardware_concurrency());
@@ -54,12 +54,13 @@ createDescartesPlanProfile()
 
   // Use the default state and edge evaluators
   profile->state_evaluator = nullptr;
-  profile->edge_evaluator = [](const tesseract_planning::DescartesProblem<FloatType>& prob) ->
+  profile->edge_evaluator = [&tcp, &speed](const tesseract_planning::DescartesProblem<FloatType>& prob) ->
       typename descartes_light::EdgeEvaluator<FloatType>::Ptr {
         auto eval = std::make_shared<descartes_light::CompoundEdgeEvaluator<FloatType>>();
 
         // Nominal Euclidean distance
         eval->evaluators.push_back(std::make_shared<descartes_light::EuclideanDistanceEdgeEvaluator<FloatType>>());
+        eval->evaluators.push_back(std::make_shared<ConstantTCPVelocityEdgeEvaluator<FloatType>>(prob.manip, tcp, speed));
 
         // Penalize wrist motion
         //        Eigen::Matrix<FloatType, Eigen::Dynamic, 1> wrist_mask(prob.manip->numJoints());
