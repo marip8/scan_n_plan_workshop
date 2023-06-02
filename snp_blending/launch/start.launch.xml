@@ -3,7 +3,7 @@
   <arg name="sim_vision" default="True"/>
   <arg name="sim_robot" default="True"/>
   <arg name="mesh_file" default="$(find-pkg-share snp_blending)/meshes/part_scan.ply"/>
-  <arg name="scan_trajectory_file" default="$(find-pkg-share snp_blending)/config/scan_traj.yaml"/>
+  <arg name="scan_trajectory_file" default="$(find-pkg-share snp_blending)/config/scan_traj_closer.yaml"/>
   <arg name="verbose" default="True"/>
   <arg name="touch_links" default="[table, base_link, floor]"/>
   <arg name="robot_description" default="$(command 'xacro $(find-pkg-share snp_blending)/urdf/workcell.xacro')"/>
@@ -31,10 +31,12 @@
     <!-- TSDF parameters -->
     <param name="tsdf.min.x" value="0.0"/>
     <param name="tsdf.min.y" value="0.0"/>
-    <param name="tsdf.min.z" value="0.05"/>
+    <param name="tsdf.min.z" value="0.02"/>
     <param name="tsdf.max.x" value="0.9144"/>
     <param name="tsdf.max.y" value="1.524"/>
     <param name="tsdf.max.z" value="0.5"/>
+    <param name="tsdf.voxel_length" value="0.003"/>
+<!--    <param name="tsdf.sdf_trunc" value="0.025"/>-->
   </node>
 
   <!-- Launch Calibration Node and Mutable Transform Publisher Node  -->
