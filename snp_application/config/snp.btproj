@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" project_name="Project">
+    <include path="snp.xml"/>
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Condition ID="ButtonMonitor" editable="true">
+            <input_port name="button"/>
+        </Condition>
+        <Action ID="ProcessNode" editable="true"/>
+        <Decorator ID="Progress" editable="true">
+            <input_port name="start" default="0"/>
+            <input_port name="end" default="100"/>
+        </Decorator>
+        <Action ID="ROSExecuteMotionPlanService" editable="true"/>
+        <Action ID="ROSGenerateMotionPlanService" editable="true"/>
+        <Action ID="ROSGenerateScanMotionPlanService" editable="true"/>
+        <Action ID="ROSGenerateToolPathsService" editable="true"/>
+        <Action ID="ROSTriggerService" editable="true"/>
+        <Control ID="SequenceWithMemoryOffset" editable="true"/>
+        <Decorator ID="SetPage" editable="true">
+            <input_port name="index" default="0"/>
+        </Decorator>
+        <Action ID="WaitForButtonInput" editable="true">
+            <input_port name="button"/>
+        </Action>
+    </TreeNodesModel>
+</root>

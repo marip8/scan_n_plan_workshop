@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="main">
+    <ReactiveSequence>
+      <ButtonMonitor button="reset"/>
+      <KeepRunningUntilFailure>
+        <ForceSuccess>
+          <ReactiveSequence>
+            <ButtonMonitor button="halt"/>
+            <SubTree ID="process"
+                     _autoremap="true"/>
+          </ReactiveSequence>
+        </ForceSuccess>
+      </KeepRunningUntilFailure>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="process">
+    <SequenceWithMemoryOffset>
+      <Progress start="0"
+                end="20">
+        <Sequence>
+          <SetPage index="1">
+            <WaitForButtonInput name="approve_load_octomap"
+                                button="load_octomap"/>
+          </SetPage>
+          <ProcessNode name="load_octomap"/>
+        </Sequence>
+      </Progress>
+      <Progress start="20"
+                end="40">
+        <Sequence>
+          <SetPage index="2">
+            <WaitForButtonInput name="approve_plan_exchange_motions"
+                                button="plan_exchange_motions"/>
+          </SetPage>
+          <ProcessNode name="plan_exchange_motions"/>
+        </Sequence>
+      </Progress>
+      <Progress start="40"
+                end="60">
+        <Sequence>
+          <SetPage index="3">
+            <WaitForButtonInput name="approve_execute_exchange_motions"
+                                button="execute_motions"/>
+          </SetPage>
+          <ProcessNode name="execute_exchange_motions"/>
+        </Sequence>
+      </Progress>
+      <Progress start="60"
+                end="80">
+        <Sequence>
+          <SetPage index="4">
+            <WaitForButtonInput name="approve_plan_placement_motions"
+                                button="plan_placement_motions"/>
+          </SetPage>
+          <ProcessNode name="plan_placement_motions"/>
+        </Sequence>
+      </Progress>
+      <Progress start="80"
+                end="100">
+        <Sequence>
+          <SetPage index="3">
+            <WaitForButtonInput name="approve_execute_placement_motions"
+                                button="execute_motions"/>
+          </SetPage>
+          <ProcessNode name="execute_placement_motions"/>
+        </Sequence>
+      </Progress>
+      <SetPage index="5">
+        <WaitForButtonInput name="approve_restart"
+                            button="reset"/>
+      </SetPage>
+    </SequenceWithMemoryOffset>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="ButtonMonitor"
+               editable="true">
+      <input_port name="button"/>
+    </Condition>
+    <Action ID="ProcessNode"
+            editable="true"/>
+    <Decorator ID="Progress"
+               editable="true">
+      <input_port name="start"
+                  default="0"/>
+      <input_port name="end"
+                  default="100"/>
+    </Decorator>
+    <Control ID="SequenceWithMemoryOffset"
+             editable="true"/>
+    <Decorator ID="SetPage"
+               editable="true">
+      <input_port name="index"
+                  default="0"/>
+    </Decorator>
+    <Action ID="WaitForButtonInput"
+            editable="true">
+      <input_port name="button"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
