@@ -19,8 +19,9 @@ namespace snp_application
 {
 SNPWidget::SNPWidget(rclcpp::Node::SharedPtr node, QWidget* parent)
   : QWidget(parent)
-  , ui_(new Ui::SNPWidget)
+  , ui_(new Ui::SNPWidget())
   , node_(node)
+  , board_(BT::Blackboard::create())
 {
   ui_->setupUi(this);
 
@@ -47,19 +48,19 @@ SNPWidget::SNPWidget(rclcpp::Node::SharedPtr node, QWidget* parent)
 
   board_->set("scan", static_cast<QAbstractButton*>(ui_->push_button_scan));
   board_->set("tpp", static_cast<QAbstractButton*>(ui_->push_button_tpp));
-  board_->set("motion_plan", static_cast<QAbstractButton*>(ui_->push_button_motion_plan));
+  board_->set("plan", static_cast<QAbstractButton*>(ui_->push_button_motion_plan));
   board_->set("execute", static_cast<QAbstractButton*>(ui_->push_button_motion_execution));
 
   // Register custom nodes
   factory_.registerNodeType<ButtonMonitorNode>("ButtonMonitor");
-  factory_.registerNodeType<ButtonApprovalNode>("WaitForButtonInput");
+  factory_.registerNodeType<ButtonApprovalNode>("ButtonApproval");
   factory_.registerNodeType<ProgressDecoratorNode>("Progress");
   factory_.registerNodeType<SetPageDecoratorNode>("SetPage");
-  factory_.registerNodeType<SNPSequenceWithMemory>("SequenceWithMemoryOffset");
+  factory_.registerNodeType<SNPSequenceWithMemory>("SNPSequenceWithMemory");
 
   BT::RosNodeParams ros_params;
   ros_params.nh = node;
-  // ros_params.server_timeout = ;
+  ros_params.server_timeout = std::chrono::seconds(120);
 
   factory_.registerNodeType<TriggerServiceNode>("TriggerService", ros_params);
   factory_.registerNodeType<ExecuteMotionPlanServiceNode>("ExecuteMotionPlanService", ros_params);
