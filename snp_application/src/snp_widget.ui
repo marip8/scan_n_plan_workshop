@@ -30,7 +30,7 @@
       <item>
        <widget class="QStackedWidget" name="stacked_widget">
         <property name="currentIndex">
-         <number>3</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page">
          <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -40,7 +40,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>Get Detailed Scan</string>
+             <string>Generate Scan Motion Plan</string>
             </property>
            </widget>
           </item>
@@ -83,6 +83,17 @@
             </property>
             <property name="text">
              <string>Execute Motion Plan</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_5">
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Done!</string>
             </property>
            </widget>
           </item>
