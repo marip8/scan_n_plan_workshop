@@ -20,7 +20,8 @@ BT::NodeStatus TriggerServiceNode::onResponseReceived(const typename Response::S
 
 bool ExecuteMotionPlanServiceNode::setRequest(typename Request::SharedPtr& request)
 {
-  request->motion_plan = getBTInput<trajectory_msgs::msg::JointTrajectory>(this, "trajectory");
+  request->motion_plan = getBTInput<trajectory_msgs::msg::JointTrajectory>(this, MOTION_PLAN_INPUT_PORT_KEY);
+  request->use_tool = getBTInput<bool>(this, USE_TOOL_INPUT_PORT_KEY);
   return true;
 }
 
@@ -36,7 +37,7 @@ BT::NodeStatus ExecuteMotionPlanServiceNode::onResponseReceived(const typename R
 
 bool GenerateMotionPlanServiceNode::setRequest(typename Request::SharedPtr& request)
 {
-  request->tool_paths = getBTInput<std::vector<snp_msgs::msg::ToolPath>>(this, "tool_paths");
+  request->tool_paths = getBTInput<std::vector<snp_msgs::msg::ToolPath>>(this, TOOL_PATHS_INPUT_PORT_KEY);
 
   request->motion_group = get_parameter<std::string>(node_, MOTION_GROUP_PARAM);
   request->tcp_frame = get_parameter<std::string>(node_, TCP_FRAME_PARAM);
@@ -55,7 +56,7 @@ BT::NodeStatus GenerateMotionPlanServiceNode::onResponseReceived(const typename 
   }
 
   // Set output
-  setOutput("motion_plan", response->motion_plan);
+  setOutput(MOTION_PLAN_OUTPUT_PORT_KEY, response->motion_plan);
 
   return BT::NodeStatus::SUCCESS;
 }
@@ -74,7 +75,7 @@ BT::NodeStatus GenerateScanMotionPlanServiceNode::onResponseReceived(const typen
   }
 
   // Set output
-  setOutput("motion_plan", response->motion_plan);
+  setOutput(MOTION_PLAN_OUTPUT_PORT_KEY, response->motion_plan);
 
   return BT::NodeStatus::SUCCESS;
 }
@@ -96,7 +97,7 @@ BT::NodeStatus GenerateToolPathsServiceNode::onResponseReceived(const typename R
   }
 
   // Set output
-  setOutput("tool_paths", response->tool_paths);
+  setOutput(TOOL_PATHS_OUTPUT_PORT_KEY, response->tool_paths);
 
   return BT::NodeStatus::SUCCESS;
 }

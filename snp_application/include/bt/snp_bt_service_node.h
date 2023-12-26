@@ -30,13 +30,7 @@ template <typename T>
 T get_parameter_or(rclcpp::Node::SharedPtr node, const std::string& key, const T& default_val)
 {
   T val;
-  if (!node->get_parameter_or(key, val, default_val))
-  {
-    std::stringstream ss;
-    ss << "Failed to get '" << key << "' parameter with default value '" << default_val << "'";
-    throw std::runtime_error(ss.str());
-  }
-
+  node->get_parameter_or(key, val, default_val);
   return val;
 }
 
@@ -53,9 +47,11 @@ public:
 class ExecuteMotionPlanServiceNode : public BT::RosServiceNode<snp_msgs::srv::ExecuteMotionPlan>
 {
 public:
+  inline static std::string MOTION_PLAN_INPUT_PORT_KEY = "motion_plan";
+  inline static std::string USE_TOOL_INPUT_PORT_KEY = "use_tool";
   inline static BT::PortsList providedPorts()
   {
-    return providedBasicPorts({ BT::InputPort<trajectory_msgs::msg::JointTrajectory>("trajectory") });
+    return providedBasicPorts({ BT::InputPort<trajectory_msgs::msg::JointTrajectory>(MOTION_PLAN_INPUT_PORT_KEY), BT::InputPort<bool>(USE_TOOL_INPUT_PORT_KEY) });
   }
 
   using BT::RosServiceNode<snp_msgs::srv::ExecuteMotionPlan>::RosServiceNode;
@@ -67,11 +63,13 @@ public:
 class GenerateMotionPlanServiceNode : public BT::RosServiceNode<snp_msgs::srv::GenerateMotionPlan>
 {
 public:
+  inline static std::string TOOL_PATHS_INPUT_PORT_KEY = "tool_paths";
+  inline static std::string MOTION_PLAN_OUTPUT_PORT_KEY = "motion_plan";
   inline static BT::PortsList providedPorts()
   {
     return providedBasicPorts({
-      BT::InputPort<std::vector<snp_msgs::msg::ToolPath>>("tool_paths"),
-      BT::OutputPort<trajectory_msgs::msg::JointTrajectory>("motion_plan")
+      BT::InputPort<std::vector<snp_msgs::msg::ToolPath>>(TOOL_PATHS_INPUT_PORT_KEY),
+      BT::OutputPort<trajectory_msgs::msg::JointTrajectory>(MOTION_PLAN_OUTPUT_PORT_KEY)
     });
   }
 
@@ -84,9 +82,10 @@ public:
 class GenerateScanMotionPlanServiceNode : public BT::RosServiceNode<snp_msgs::srv::GenerateScanMotionPlan>
 {
 public:
+  inline static std::string MOTION_PLAN_OUTPUT_PORT_KEY = "motion_plan";
   inline static BT::PortsList providedPorts()
   {
-    return providedBasicPorts({ BT::OutputPort<trajectory_msgs::msg::JointTrajectory>("motion_plan") });
+    return providedBasicPorts({ BT::OutputPort<trajectory_msgs::msg::JointTrajectory>(MOTION_PLAN_OUTPUT_PORT_KEY) });
   }
 
   using BT::RosServiceNode<snp_msgs::srv::GenerateScanMotionPlan>::RosServiceNode;
@@ -98,9 +97,10 @@ public:
 class GenerateToolPathsServiceNode : public BT::RosServiceNode<snp_msgs::srv::GenerateToolPaths>
 {
 public:
+  inline static std::string TOOL_PATHS_OUTPUT_PORT_KEY = "tool_paths";
   inline static BT::PortsList providedPorts()
   {
-    return providedBasicPorts({ BT::OutputPort<snp_msgs::msg::ToolPath>("tool_path") });
+    return providedBasicPorts({ BT::OutputPort<std::vector<snp_msgs::msg::ToolPath>>(TOOL_PATHS_OUTPUT_PORT_KEY) });
   }
 
   using BT::RosServiceNode<snp_msgs::srv::GenerateToolPaths>::RosServiceNode;
