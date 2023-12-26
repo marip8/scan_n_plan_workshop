@@ -8,10 +8,11 @@ namespace snp_application
 class ButtonApprovalNode : public BT::StatefulActionNode
 {
 public:
-  inline static std::string BUTTON_PORT_KEY = "button";
+  inline static std::string APPROVE_BUTTON_PORT_KEY = "approve_button";
+  inline static std::string DISAPPROVE_BUTTON_PORT_KEY = "disapprove_button";
   static BT::PortsList providedPorts()
   {
-    return { BT::InputPort<std::string>(BUTTON_PORT_KEY) };
+    return { BT::InputPort<std::string>(APPROVE_BUTTON_PORT_KEY), BT::InputPort<std::string>(DISAPPROVE_BUTTON_PORT_KEY) };
   }
 
   explicit ButtonApprovalNode(const std::string& instance_name,
@@ -22,8 +23,8 @@ public:
   void onHalted() override;
 
 private:
-  std::atomic_bool complete_;
-  std::atomic_bool cancel_;
+  std::atomic_bool approved_;
+  std::atomic_bool disapproved_;
 };
 
 } // namespace snp_application

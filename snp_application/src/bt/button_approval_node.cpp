@@ -8,42 +8,37 @@ namespace snp_application
 ButtonApprovalNode::ButtonApprovalNode(const std::string& instance_name,
                                        const BT::NodeConfig& config)
   : BT::StatefulActionNode(instance_name, config)
-  , complete_(false)
-  , cancel_(false)
+  , approved_(false)
+  , disapproved_(false)
 {
-  auto button_key = getBTInput<std::string>(this, BUTTON_PORT_KEY);
-  auto button = this->config().blackboard->get<QAbstractButton*>(button_key);
+  auto approve_button_key = getBTInput<std::string>(this, APPROVE_BUTTON_PORT_KEY);
+  auto approve_button = this->config().blackboard->get<QAbstractButton*>(approve_button_key);
+  QObject::connect(approve_button, &QAbstractButton::clicked, [this](const bool){ approved_ = true; });
 
-  auto cancel_button = this->config().blackboard->get<QAbstractButton*>("cancel_button");
-
-  // Connect
-  QObject::connect(button, &QAbstractButton::clicked, [this](const bool){ complete_ = true; });
-  QObject::connect(cancel_button, &QAbstractButton::clicked, [this](const bool){ cancel_ = true; });
+  auto disapprove_button_key = getBTInput<std::string>(this, DISAPPROVE_BUTTON_PORT_KEY);
+  auto disapprove_button = this->config().blackboard->get<QAbstractButton*>(disapprove_button_key);
+  QObject::connect(disapprove_button, &QAbstractButton::clicked, [this](const bool){ disapproved_ = true; });
 }
 
 BT::NodeStatus ButtonApprovalNode::onStart()
 {
   std::cout << "-- " << name() << " started --" << std::endl;
-  complete_ = false;
-  cancel_ = false;
+  approved_ = false;
+  disapproved_ = false;
   return BT::NodeStatus::RUNNING;
 }
 
 BT::NodeStatus ButtonApprovalNode::onRunning()
 {
-  if(cancel_)
+  if(disapproved_)
   {
-    std::cout << "-- " << name() << " cancelled --" << std::endl;
-    complete_ = false;
-    cancel_ = false;
+    std::cout << "-- " << name() << " not approved --" << std::endl;
     return BT::NodeStatus::FAILURE;
   }
 
-  if (complete_)
+  if (approved_)
   {
-    std::cout << "-- " << name() << " finished --" << std::endl;
-    complete_ = false;
-    cancel_ = false;
+    std::cout << "-- " << name() << " approved --" << std::endl;
     return BT::NodeStatus::SUCCESS;
   }
 
