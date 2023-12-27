@@ -3,6 +3,8 @@
 #include <atomic>
 #include <behaviortree_cpp/action_node.h>
 
+class QAbstractButton;
+
 namespace snp_application
 {
 class ButtonApprovalNode : public BT::StatefulActionNode
@@ -25,6 +27,9 @@ public:
 private:
   std::atomic_bool approved_;
   std::atomic_bool disapproved_;
+
+  QAbstractButton* approve_button_;
+  QAbstractButton* disapprove_button_;
 };
 
 } // namespace snp_application
