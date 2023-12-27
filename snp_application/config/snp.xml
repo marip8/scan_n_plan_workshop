@@ -18,6 +18,9 @@
   <BehaviorTree ID="motion">
     <Sequence>
       <TriggerService service_name="robot_enable"/>
+      <UpdateTrajectoryStartState topic_name="/joint_states"
+                                  input="{trajectory}"
+                                  output="{trajectory}"/>
       <FollowJointTrajectoryAction action_name="joint_trajectory_position_controller/follow_joint_trajectory"
                                    trajectory="{trajectory}"/>
       <TriggerService service_name="robot_disable"/>
@@ -107,6 +110,9 @@
     <Sequence>
       <TriggerService service_name="robot_enable"/>
       <StartReconstructionService service_name="start_reconstruction"/>
+      <UpdateTrajectoryStartState topic_name="/joint_states"
+                                  input="{trajectory}"
+                                  output="{trajectory}"/>
       <FollowJointTrajectoryAction action_name="joint_trajectory_position_controller/follow_joint_trajectory"
                                    trajectory="{trajectory}"/>
       <StopReconstructionService service_name="stop_reconstruction"/>
@@ -195,6 +201,15 @@
     <Action ID="TriggerService"
             editable="true">
       <input_port name="service_name"/>
+    </Action>
+    <Action ID="UpdateTrajectoryStartState"
+            editable="true">
+      <input_port name="topic_name"
+                  default="/joint_states"/>
+      <input_port name="input"
+                  default="{trajectory}"/>
+      <output_port name="output"
+                   default="{trajectory}"/>
     </Action>
     <SubTree ID="motion"
              editable="true">
