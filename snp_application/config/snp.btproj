@@ -28,6 +28,10 @@
             <input_port name="service_name" default="generate_tool_paths"/>
             <input_port name="tool_paths" default="{tool_paths}"/>
         </Action>
+        <Action ID="MotionPlanPub" editable="true">
+            <input_port name="topic_name"/>
+            <input_port name="motion_plan" default="{motion_plan}"/>
+        </Action>
         <Action ID="ProcessNode" editable="true"/>
         <Decorator ID="Progress" editable="true">
             <input_port name="start" default="0"/>
@@ -42,6 +46,10 @@
         </Action>
         <Action ID="StopReconstructionService" editable="true">
             <input_port name="service_name" default="stop_reconstruction"/>
+        </Action>
+        <Action ID="ToolPathsPub" editable="true">
+            <input_port name="topic_name" default="tool_paths"/>
+            <input_port name="tool_paths" default="{tool_paths}"/>
         </Action>
         <Action ID="TriggerService" editable="true">
             <input_port name="service_name"/>

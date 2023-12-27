@@ -6,7 +6,7 @@
       <KeepRunningUntilFailure>
         <ForceSuccess>
           <ReactiveSequence>
-            <ButtonMonitor button="back"/>
+            <ButtonMonitor button="halt"/>
             <SubTree ID="process"
                      _autoremap="true"/>
           </ReactiveSequence>
@@ -37,6 +37,8 @@
           </SetPage>
           <GenerateScanMotionPlanService service_name="generate_scan_motion_plan"
                                          motion_plan="{scan_motion_plan}"/>
+          <MotionPlanPub topic_name="motion_plan"
+                         motion_plan="{scan_motion_plan}"/>
         </Sequence>
       </Progress>
       <Progress start="20"
@@ -61,6 +63,8 @@
           </SetPage>
           <GenerateToolPathsService service_name="generate_tool_paths"
                                     tool_paths="{tool_paths}"/>
+          <ToolPathsPub topic_name="tool_paths"
+                        tool_paths="{tool_paths}"/>
         </Sequence>
       </Progress>
       <Progress start="60"
@@ -74,6 +78,8 @@
           <GenerateMotionPlanService service_name="generate_motion_plan"
                                      tool_paths="{tool_paths}"
                                      motion_plan="{motion_plan}"/>
+          <MotionPlanPub topic_name="motion_plan"
+                         motion_plan="{motion_plan}"/>
         </Sequence>
       </Progress>
       <Progress start="80"
@@ -151,6 +157,12 @@
       <input_port name="tool_paths"
                   default="{tool_paths}"/>
     </Action>
+    <Action ID="MotionPlanPub"
+            editable="true">
+      <input_port name="topic_name"/>
+      <input_port name="motion_plan"
+                  default="{motion_plan}"/>
+    </Action>
     <Decorator ID="Progress"
                editable="true">
       <input_port name="start"
@@ -174,6 +186,13 @@
             editable="true">
       <input_port name="service_name"
                   default="stop_reconstruction"/>
+    </Action>
+    <Action ID="ToolPathsPub"
+            editable="true">
+      <input_port name="topic_name"
+                  default="tool_paths"/>
+      <input_port name="tool_paths"
+                  default="{tool_paths}"/>
     </Action>
     <Action ID="TriggerService"
             editable="true">
