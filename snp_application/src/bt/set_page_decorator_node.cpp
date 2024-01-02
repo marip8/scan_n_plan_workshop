@@ -7,7 +7,7 @@ namespace snp_application
 {
 BT::NodeStatus SetPageDecoratorNode::tick()
 {
-  auto stacked_widget = config().blackboard->get<QStackedWidget*>(STACKED_WIDGET_KEY);
+  auto * stacked_widget = config().blackboard->get<QStackedWidget*>(STACKED_WIDGET_KEY);
   if(!QMetaObject::invokeMethod(stacked_widget, "setEnabled", Qt::QueuedConnection, Q_ARG(bool, true)))
     throw std::runtime_error("Failed to call setEnabled");
 
