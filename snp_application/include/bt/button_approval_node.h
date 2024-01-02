@@ -25,11 +25,13 @@ public:
   void onHalted() override;
 
 private:
+  void setButtonsEnabled(const bool enable);
+
   std::atomic_bool approved_;
   std::atomic_bool disapproved_;
 
-  QAbstractButton* approve_button_;
-  QAbstractButton* disapprove_button_;
+  QAbstractButton* approve_button_{nullptr};
+  QAbstractButton* disapprove_button_{nullptr};
 };
 
 } // namespace snp_application
