@@ -515,15 +515,37 @@ private:
       tesseract_planning::CompositeInstruction program_results =
           result->context->data_storage->getData(output_key).as<tesseract_planning::CompositeInstruction>();
 
-      // Convert to joint trajectory
-      tesseract_common::JointTrajectory jt = toJointTrajectory(program_results);
+      if (program_results.size() < 3)
+      {
+        std::stringstream ss;
+        ss << "The composite instruction must have at least 3 children (approach, process rasters, and departure). "
+              "This result only has "
+           << program_results.size();
+        throw std::runtime_error(ss.str());
+      }
 
       // Send joint trajectory to Tesseract plotter widget
-      plotter_->plotTrajectory(jt, *env_->getStateSolver());
+      plotter_->plotTrajectory(toJointTrajectory(program_results), *env_->getStateSolver());
 
       // Return results
-      res->motion_plan = tesseract_rosutils::toMsg(jt, env_->getState());
-      res->message = "Successfully planned motion";
+      res->approach = tesseract_rosutils::toMsg(toJointTrajectory(*program_results.begin()), env_->getState());
+
+      tesseract_planning::CompositeInstruction process_ci(program_results.begin() + 1, program_results.end() - 1);
+      res->process = tesseract_rosutils::toMsg(toJointTrajectory(process_ci), env_->getState());
+
+      res->departure = tesseract_rosutils::toMsg(toJointTrajectory(*(program_results.end() - 1)), env_->getState());
+
+      // The entire trajectory was time parameterized together, so adjust the time stamps of the trajectory components
+      {
+        auto adjust_time = [](trajectory_msgs::msg::JointTrajectory& traj, const rclcpp::Duration& time_offset) {
+          for (trajectory_msgs::msg::JointTrajectoryPoint& pt : traj.points)
+            pt.time_from_start = rclcpp::Duration(pt.time_from_start) - time_offset;
+        };
+        adjust_time(res->process, rclcpp::Duration(res->process.points.front().time_from_start));
+        adjust_time(res->departure, rclcpp::Duration(res->departure.points.front().time_from_start));
+      }
+
+      res->message = "Succesfully planned motion";
       res->success = true;
     }
     catch (const std::exception& ex)
