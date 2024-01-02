@@ -73,11 +73,9 @@
       <Progress start="60"
                 end="80">
         <Sequence>
-          <SetPage index="2">
-            <ButtonApproval name="approve_generate_motion_plan"
-                            approve_button="plan"
-                            disapprove_button="back"/>
-          </SetPage>
+          <ButtonApproval name="approve_generate_motion_plan"
+                          approve_button="plan"
+                          disapprove_button="back"/>
           <GenerateMotionPlanService service_name="generate_motion_plan"
                                      tool_paths="{tool_paths}"
                                      motion_plan="{motion_plan}"/>
@@ -100,7 +98,7 @@
       </Progress>
       <SetPage index="4">
         <ButtonApproval name="approve_restart"
-                        approve_button="reset"
+                        approve_button=""
                         disapprove_button="back"/>
       </SetPage>
     </SNPSequenceWithMemory>
