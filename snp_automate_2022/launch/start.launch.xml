@@ -23,7 +23,11 @@
     <arg name="use_gui" value="$(var bypass_execution)"/>
   </include>
 
-  <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share snp_automate_2022)/config/app.rviz">
+  <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share snp_automate_2022)/config/app.rviz" output="screen">
+    <param name="bt_files" value="[$(find-pkg-share snp_application)/config/snp.xml]"/>
+    <param name="tree" value="main"/>
+    <!-- Application -->
+    <param name="config_file" value="$(find-pkg-share snp_automate_2022)/config/tpp.yaml"/>
     <param name="mesh_file" value="/tmp/results_mesh.ply"/>
     <param name="motion_group" value="manipulator"/>
     <param name="reference_frame" value="$(var reference_frame)"/>
@@ -74,9 +78,9 @@
   </group>
 
   <!-- Launch Toolpath Planning Node -->
-  <node pkg="snp_tpp" exec="snp_tpp_app">
+<!--  <node pkg="snp_tpp" exec="snp_tpp_app">
     <param name="config_file" value="$(find-pkg-share snp_automate_2022)/config/tpp.yaml"/>
-  </node>
+  </node>-->
 
   <!-- Launch Motion Planning Node -->
   <include file="$(find-pkg-share snp_motion_planning)/launch/planning_server.launch.xml">
