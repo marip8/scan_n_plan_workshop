@@ -32,9 +32,9 @@ public:
     loader.search_libraries_env = NOETHER_GUI_PLUGIN_LIBS_ENV;
     loader.search_paths_env = NOETHER_GUI_PLUGIN_PATHS_ENV;
 
-    auto w = new snp_tpp::TPPWidget(node, std::move(loader), this);
+    auto* w = new snp_tpp::TPPWidget(node, std::move(loader), this);
 
-    auto vl = new QVBoxLayout(this);
+    auto* vl = new QVBoxLayout(this);
     vl->addWidget(w);
   }
 };
@@ -52,14 +52,14 @@ SNPWidget::SNPWidget(rclcpp::Node::SharedPtr rviz_node, QWidget* parent)
 
   // Add the TPP widget
   {
-    auto tpp_dialog = new TPPDialog(node_, this);
+    auto* tpp_dialog = new TPPDialog(node_, this);
     tpp_dialog->hide();
     connect(ui_->tool_button_tpp, &QToolButton::clicked, tpp_dialog, &QWidget::show);
   }
 
   // Add the trajectory preview widget
   {
-    auto preview = new trajectory_preview::TrajectoryPreviewWidget(this);
+    auto* preview = new trajectory_preview::TrajectoryPreviewWidget(this);
     preview->initializeROS(rviz_node, "motion_plan", "preview");
 
     auto layout = new QVBoxLayout(ui_->frame_preview_widget);
