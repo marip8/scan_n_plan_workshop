@@ -535,14 +535,18 @@ private:
 
       res->departure = tesseract_rosutils::toMsg(toJointTrajectory(*(program_results.end() - 1)), env_->getState());
 
-      // The entire trajectory was time parameterized together, so adjust the time stamps of the trajectory components
+      // Add the end of the approach to the beginning of the process trajectory
       {
-        auto adjust_time = [](trajectory_msgs::msg::JointTrajectory& traj, const rclcpp::Duration& time_offset) {
-          for (trajectory_msgs::msg::JointTrajectoryPoint& pt : traj.points)
-            pt.time_from_start = rclcpp::Duration(pt.time_from_start) - time_offset;
-        };
-        adjust_time(res->process, rclcpp::Duration(res->process.points.front().time_from_start));
-        adjust_time(res->departure, rclcpp::Duration(res->departure.points.front().time_from_start));
+        trajectory_msgs::msg::JointTrajectoryPoint approach_end = res->approach.points.back();
+        approach_end.time_from_start = builtin_interfaces::msg::Duration();
+        res->process.points.insert(res->process.points.begin(), approach_end);
+      }
+
+      // Add the end of the process trajectory to the beginning of the departure trajectory
+      {
+        trajectory_msgs::msg::JointTrajectoryPoint process_end = res->process.points.back();
+        process_end.time_from_start = builtin_interfaces::msg::Duration();
+        res->departure.points.insert(res->departure.points.begin(), process_end);
       }
 
       res->message = "Succesfully planned motion";
