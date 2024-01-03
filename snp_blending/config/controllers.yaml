@@ -24,8 +24,8 @@ joint_trajectory_position_controller:
 
     command_interfaces:
       - position
-      - velocity
-      - acceleration
+#      - velocity
+#      - acceleration
 
     state_interfaces:
       - position
