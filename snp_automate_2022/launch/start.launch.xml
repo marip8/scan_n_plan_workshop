@@ -23,6 +23,12 @@
     <arg name="use_gui" value="$(var bypass_execution)"/>
   </include>
 
+  <!-- Trajectory Preview -->
+  <include file="$(find-pkg-share trajectory_preview)/launch/robot_model_preview_pipeline.launch.xml">
+    <arg name="robot_description" value="$(var robot_description)"/>
+    <arg name="root_frame" value="world"/>
+  </include>
+
   <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share snp_automate_2022)/config/app.rviz" output="screen">
     <param name="bt_files" value="[$(find-pkg-share snp_application)/config/snp.xml]"/>
     <param name="tree" value="main"/>
