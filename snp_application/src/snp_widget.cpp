@@ -2,22 +2,18 @@
 #include "ui_snp_widget.h"
 // BT
 #include <snp_application/bt/bt_thread.h>
-#include <snp_application/bt/button_approval_node.h>
-#include <snp_application/bt/button_monitor_node.h>
-#include <snp_application/bt/progress_decorator_node.h>
-#include <snp_application/bt/set_page_decorator_node.h>
-#include <snp_application/bt/snp_bt_ros_nodes.h>
-#include <snp_application/bt/snp_sequence_with_memory_node.h>
 #include <snp_application/bt/text_edit_logger.h>
 #include <snp_application/bt/utils.h>
 
 #include <behaviortree_cpp/bt_factory.h>
+
 #include <boost_plugin_loader/plugin_loader.h>
 #include <QMessageBox>
 #include <QTextStream>
 #include <QScrollBar>
 #include <QTextEdit>
 #include <QStackedWidget>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <snp_tpp/tpp_widget.h>
 #include <trajectory_preview/trajectory_preview_widget.h>
 
@@ -173,8 +169,8 @@ SNPWidget::SNPWidget(rclcpp::Node::SharedPtr rviz_node, QWidget* parent)
   board_->set(ERROR_MESSAGE_KEY, "");
 
   // Populate the blackboard with buttons
-  board_->set(SetPageDecoratorNode::STACKED_WIDGET_KEY, ui_->stacked_widget);
-  board_->set(ProgressDecoratorNode::PROGRESS_BAR_KEY, ui_->progress_bar);
+  // board_->set(SetPageDecoratorNode::STACKED_WIDGET_KEY, ui_->stacked_widget);
+  // board_->set(ProgressDecoratorNode::PROGRESS_BAR_KEY, ui_->progress_bar);
   board_->set("reset", static_cast<QAbstractButton*>(ui_->push_button_reset));
   board_->set("halt", static_cast<QAbstractButton*>(ui_->push_button_halt));
 
@@ -189,22 +185,24 @@ SNPWidget::SNPWidget(rclcpp::Node::SharedPtr rviz_node, QWidget* parent)
 BT::BehaviorTreeFactory SNPWidget::createBTFactory(int ros_short_timeout, int ros_long_timeout)
 {
   BT::BehaviorTreeFactory bt_factory;
+  // bt_factory.registerFromROSPlugins();
+  bt_factory.registerFromPlugin("");
 
   // Register custom nodes
-  bt_factory.registerNodeType<ButtonMonitorNode>("ButtonMonitor");
-  bt_factory.registerNodeType<ButtonApprovalNode>("ButtonApproval");
-  bt_factory.registerNodeType<ProgressDecoratorNode>("Progress");
-  bt_factory.registerNodeType<SetPageDecoratorNode>("SetPage");
-  bt_factory.registerNodeType<SNPSequenceWithMemory>("SNPSequenceWithMemory");
-  bt_factory.registerNodeType<RosSpinnerNode>("RosSpinner", bt_node_);
-  bt_factory.registerNodeType<ReverseTrajectoryNode>("ReverseTrajectory");
-  bt_factory.registerNodeType<CombineTrajectoriesNode>("CombineTrajectories");
-  bt_factory.registerNodeType<UpdateTrajectoryStartStateNode>("UpdateTrajectoryStartState", bt_node_);
+  // bt_factory.registerNodeType<ButtonMonitorNode>("ButtonMonitor");
+  // bt_factory.registerNodeType<ButtonApprovalNode>("ButtonApproval");
+  // bt_factory.registerNodeType<ProgressDecoratorNode>("Progress");
+  // bt_factory.registerNodeType<SetPageDecoratorNode>("SetPage");
+  // bt_factory.registerNodeType<SNPSequenceWithMemory>("SNPSequenceWithMemory");
+  // bt_factory.registerNodeType<RosSpinnerNode>("RosSpinner", bt_node_);
+  // bt_factory.registerNodeType<ReverseTrajectoryNode>("ReverseTrajectory");
+  // bt_factory.registerNodeType<CombineTrajectoriesNode>("CombineTrajectories");
+  // bt_factory.registerNodeType<UpdateTrajectoryStartStateNode>("UpdateTrajectoryStartState", bt_node_);
 
-  BT::RosNodeParams ros_params;
-  ros_params.nh = bt_node_;
-  ros_params.wait_for_server_timeout = std::chrono::seconds(0);
-  ros_params.server_timeout = std::chrono::seconds(ros_short_timeout);
+  // BT::RosNodeParams ros_params;
+  // ros_params.nh = bt_node_;
+  // ros_params.wait_for_server_timeout = std::chrono::seconds(0);
+  // ros_params.server_timeout = std::chrono::seconds(ros_short_timeout);
 
   // Get joint trajectory action topic name from parameter and store it in the blackboard
   board_->set(FOLLOW_JOINT_TRAJECTORY_ACTION,
@@ -216,22 +214,22 @@ BT::BehaviorTreeFactory SNPWidget::createBTFactory(int ros_short_timeout, int ro
   board_->set(HOME_STATE_NAME, home_state);
 
   // Publishers/Subscribers
-  bt_factory.registerNodeType<ToolPathsPubNode>("ToolPathsPub", ros_params);
-  bt_factory.registerNodeType<MotionPlanPubNode>("MotionPlanPub", ros_params);
-  bt_factory.registerNodeType<GetCurrentJointStateNode>("GetCurrentJointState", ros_params);
+  // bt_factory.registerNodeType<ToolPathsPubNode>("ToolPathsPub", ros_params);
+  // bt_factory.registerNodeType<MotionPlanPubNode>("MotionPlanPub", ros_params);
+  // bt_factory.registerNodeType<GetCurrentJointStateNode>("GetCurrentJointState", ros_params);
   // Short-running services
-  bt_factory.registerNodeType<TriggerServiceNode>("TriggerService", ros_params);
-  bt_factory.registerNodeType<GenerateToolPathsServiceNode>("GenerateToolPathsService", ros_params);
-  bt_factory.registerNodeType<StartReconstructionServiceNode>("StartReconstructionService", ros_params);
-  bt_factory.registerNodeType<StopReconstructionServiceNode>("StopReconstructionService", ros_params);
+  // bt_factory.registerNodeType<TriggerServiceNode>("TriggerService", ros_params);
+  // bt_factory.registerNodeType<GenerateToolPathsServiceNode>("GenerateToolPathsService", ros_params);
+  // bt_factory.registerNodeType<StartReconstructionServiceNode>("StartReconstructionService", ros_params);
+  // bt_factory.registerNodeType<StopReconstructionServiceNode>("StopReconstructionService", ros_params);
 
   // Long-running services/actions
-  ros_params.server_timeout = std::chrono::seconds(ros_long_timeout);
-  bt_factory.registerNodeType<ExecuteMotionPlanServiceNode>("ExecuteMotionPlanService", ros_params);
-  bt_factory.registerNodeType<GenerateMotionPlanServiceNode>("GenerateMotionPlanService", ros_params);
-  bt_factory.registerNodeType<GenerateFreespaceMotionPlanServiceNode>("GenerateFreespaceMotionPlanService", ros_params);
-  bt_factory.registerNodeType<GenerateScanMotionPlanServiceNode>("GenerateScanMotionPlanService", ros_params);
-  bt_factory.registerNodeType<FollowJointTrajectoryActionNode>("FollowJointTrajectoryAction", ros_params);
+  // ros_params.server_timeout = std::chrono::seconds(ros_long_timeout);
+  // bt_factory.registerNodeType<ExecuteMotionPlanServiceNode>("ExecuteMotionPlanService", ros_params);
+  // bt_factory.registerNodeType<GenerateMotionPlanServiceNode>("GenerateMotionPlanService", ros_params);
+  // bt_factory.registerNodeType<GenerateFreespaceMotionPlanServiceNode>("GenerateFreespaceMotionPlanService", ros_params);
+  // bt_factory.registerNodeType<GenerateScanMotionPlanServiceNode>("GenerateScanMotionPlanService", ros_params);
+  // bt_factory.registerNodeType<FollowJointTrajectoryActionNode>("FollowJointTrajectoryAction", ros_params);
 
   return bt_factory;
 }

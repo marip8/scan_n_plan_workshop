@@ -67,3 +67,9 @@ void ButtonApprovalNode::onHalted()
 }
 
 }  // namespace snp_application
+
+#include <behaviortree_cpp/bt_factory.h>
+BT_REGISTER_NODES(factory)
+{
+  factory.registerNodeType<snp_application::ButtonApprovalNode>("ButtonApproval");
+}

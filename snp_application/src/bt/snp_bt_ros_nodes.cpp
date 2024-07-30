@@ -667,3 +667,33 @@ BT::NodeStatus RosSpinnerNode::tick()
 }
 
 }  // namespace snp_application
+
+// #include <behaviortree_cpp/bt_factory.h>
+#include <behaviortree_ros2/plugins.hpp>
+
+CreateRosNodePlugin(snp_application::TriggerServiceNode, "TriggerService")
+CreateRosNodePlugin(snp_application::ExecuteMotionPlanServiceNode, "ExecuteMotionPlanService")
+CreateRosNodePlugin(snp_application::GenerateMotionPlanServiceNode, "GenerateMotionPlanService")
+CreateRosNodePlugin(snp_application::GenerateFreespaceMotionPlanServiceNode, "GenerateFreespaceMotionPlan")
+CreateRosNodePlugin(snp_application::GenerateScanMotionPlanServiceNode, "GenerateScanMotionPlanService")
+CreateRosNodePlugin(snp_application::GenerateToolPathsServiceNode, "GenerateToolPathsService")
+CreateRosNodePlugin(snp_application::StartReconstructionServiceNode, "StartReconstructionService")
+CreateRosNodePlugin(snp_application::StopReconstructionServiceNode, "StopReconstructionService")
+CreateRosNodePlugin(snp_application::ToolPathsPubNode, "ToolPathsPub")
+CreateRosNodePlugin(snp_application::MotionPlanPubNode, "MotionPlanPub")
+CreateRosNodePlugin(snp_application::FollowJointTrajectoryActionNode, "FollowJointTrajectoryAction")
+CreateRosNodePlugin(snp_application::GetCurrentJointStateNode, "GetCurrentJointState")
+CreateRosNodePlugin(snp_application::RosSpinnerNode, "RosSpinner")
+
+BT_REGISTER_NODES(factory)
+{
+  factory.registerNodeType<snp_application::UpdateTrajectoryStartStateNode>("UpdateTrajectoryStartState");
+}
+BT_REGISTER_NODES(factory)
+{
+  factory.registerNodeType<snp_application::ReverseTrajectoryNode>("ReverseTrajectory");
+}
+BT_REGISTER_NODES(factory)
+{
+  factory.registerNodeType<snp_application::CombineTrajectoriesNode>("CombineTrajectories");
+}
