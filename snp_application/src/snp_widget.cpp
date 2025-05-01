@@ -1,4 +1,5 @@
 #include <snp_application/snp_widget.h>
+#include <snp_application/version_check.hpp>
 #include "ui_snp_widget.h"
 // BT
 #include <snp_application/bt/bt_thread.h>
@@ -53,8 +54,11 @@ namespace snp_application
 {
 SNPWidget::SNPWidget(rclcpp::Node::SharedPtr rviz_node, QWidget* parent)
   : QWidget(parent)
+#ifndef SNP_CALLBACK_GROUP_SUPPORTED
   , bt_node_(std::make_shared<rclcpp::Node>("snp_application_bt"))
-  , tpp_node_(std::make_shared<rclcpp::Node>("snp_application_tpp"))
+#else
+  , bt_node_(rviz_node)
+#endif
   , ui_(new Ui::SNPWidget())
   , board_(BT::Blackboard::create())
 {
@@ -65,11 +69,9 @@ SNPWidget::SNPWidget(rclcpp::Node::SharedPtr rviz_node, QWidget* parent)
 
   // Add the TPP widget
   {
-    auto* tpp_dialog = new TPPDialog(tpp_node_, this);
+    auto* tpp_dialog = new TPPDialog(rviz_node, this);
     tpp_dialog->hide();
     connect(ui_->tool_button_tpp, &QToolButton::clicked, tpp_dialog, &QWidget::show);
-    tpp_node_executor_.add_node(tpp_node_);
-    tpp_node_future_ = std::async(std::launch::async, [this]() { tpp_node_executor_.spin(); });
   }
 
   // Add the trajectory preview widget
