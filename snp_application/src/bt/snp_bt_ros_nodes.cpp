@@ -1,4 +1,5 @@
 #include <snp_application/bt/snp_bt_ros_nodes.h>
+#include <snp_application/version_check.hpp>
 
 #include <geometry_msgs/msg/pose_array.hpp>
 
@@ -692,7 +693,9 @@ RosSpinnerNode::RosSpinnerNode(const std::string& instance_name, const BT::NodeC
 
 BT::NodeStatus RosSpinnerNode::tick()
 {
+#ifndef SNP_CALLBACK_GROUP_SUPPORTED
   rclcpp::spin_some(node_);
+#endif
   return BT::NodeStatus::SUCCESS;
 }
 

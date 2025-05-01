@@ -29,10 +29,15 @@ protected:
   QStackedWidget* getStackedWidget();
   QTextEdit* getTextEdit();
 
+  /**
+   * @brief Node provided to the behavior tree
+   * @details In versions of `rclcpp` that do not support the spinning of callback groups with executors, a new node instance
+   * (rather than the Rviz node) must be provided to the behavior tree, which attempts to spin the node directly. In
+   * later versions of `rclcpp` that do support the spinning of callback groups with executors, this simply points to the Rviz node,
+   * and the behavior tree will spin a callback group instead of spinning the node itself.
+   */
   rclcpp::Node::SharedPtr bt_node_;
-  rclcpp::Node::SharedPtr tpp_node_;
-  rclcpp::executors::SingleThreadedExecutor tpp_node_executor_;
-  std::future<void> tpp_node_future_;
+
   Ui::SNPWidget* ui_;
   BT::Blackboard::Ptr board_;
   std::shared_ptr<BT::StatusChangeLogger> logger_;
