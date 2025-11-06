@@ -10,8 +10,8 @@ namespace snp_application
 class LoadTrajectoryFromFileNode : public BT::SyncActionNode
 {
 public:
-  inline static std::string FILE_NAME_INPUT_PORT_KEY = "file";
-  inline static std::string TRAJECTORY_OUTPUT_PORT_KEY = "trajectory";
+  inline static const std::string FILE_NAME_INPUT_PORT_KEY = "file";
+  inline static const std::string TRAJECTORY_OUTPUT_PORT_KEY = "trajectory";
   static BT::PortsList providedPorts();
 
   explicit LoadTrajectoryFromFileNode(const std::string& instance_name, const BT::NodeConfig& config);

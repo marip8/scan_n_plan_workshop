@@ -13,10 +13,10 @@ namespace snp_application
 class ExtractApproachProcessDepartureTrajectoriesNode : public BT::SyncActionNode
 {
 public:
-  inline static std::string TRAJECTORY_INPUT_PORT_KEY = "trajectory";
-  inline static std::string APPROACH_OUTPUT_PORT_KEY = "approach";
-  inline static std::string PROCESS_OUTPUT_PORT_KEY = "process";
-  inline static std::string DEPARTURE_OUTPUT_PORT_KEY = "departure";
+  inline static const std::string TRAJECTORY_INPUT_PORT_KEY = "trajectory";
+  inline static const std::string APPROACH_OUTPUT_PORT_KEY = "approach";
+  inline static const std::string PROCESS_OUTPUT_PORT_KEY = "process";
+  inline static const std::string DEPARTURE_OUTPUT_PORT_KEY = "departure";
   static BT::PortsList providedPorts();
 
   explicit ExtractApproachProcessDepartureTrajectoriesNode(const std::string& instance_name,
