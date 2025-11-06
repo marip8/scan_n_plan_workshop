@@ -22,28 +22,39 @@ static ApproachProcessDeparture extract(const trajectory_msgs::msg::JointTraject
     throw std::runtime_error(
         "Trajectory must have at least 4 points to be decomposed into an approach, process, and departure trajectory");
 
+  // Lambda function for creating a sub-trajectory
+  auto create_sub_trajectory =
+      [&trajectory](const std::vector<trajectory_msgs::msg::JointTrajectoryPoint>::const_iterator& start,
+                    const std::vector<trajectory_msgs::msg::JointTrajectoryPoint>::const_iterator& end) {
+        trajectory_msgs::msg::JointTrajectory output;
+        output.header = trajectory.header;
+        output.joint_names = trajectory.joint_names;
+
+        for (auto it = start; it < end; ++it)
+        {
+          auto pt = *it;
+
+          // Offset the time from start
+          pt.time_from_start.sec -= start->time_from_start.sec;
+          pt.time_from_start.nanosec -= start->time_from_start.nanosec;
+
+          output.points.push_back(pt);
+        }
+
+        return output;
+      };
+
   // Create an approach trajectory from the first two points
-  trajectory_msgs::msg::JointTrajectory approach_trajectory;
-  approach_trajectory.header = trajectory.header;
-  approach_trajectory.joint_names = trajectory.joint_names;
-  approach_trajectory.points.push_back(trajectory.points[0]);
-  approach_trajectory.points.push_back(trajectory.points[1]);
+  trajectory_msgs::msg::JointTrajectory approach_trajectory =
+      create_sub_trajectory(trajectory.points.begin(), trajectory.points.begin() + 2);
 
   // Create a process trajectory from points 1 through n-1
-  trajectory_msgs::msg::JointTrajectory process_trajectory;
-  process_trajectory.header = trajectory.header;
-  process_trajectory.joint_names = trajectory.joint_names;
-  for (size_t i = 1; i < trajectory.points.size() - 1; ++i)
-  {
-    process_trajectory.points.push_back(trajectory.points[i]);
-  }
+  trajectory_msgs::msg::JointTrajectory process_trajectory =
+      create_sub_trajectory(trajectory.points.begin() + 1, trajectory.points.end() - 1);
 
   // Create a departure trajectory from points n-1 and n
-  trajectory_msgs::msg::JointTrajectory departure_trajectory;
-  departure_trajectory.header = trajectory.header;
-  departure_trajectory.joint_names = trajectory.joint_names;
-  departure_trajectory.points.push_back(*(trajectory.points.rbegin() + 1));
-  departure_trajectory.points.push_back(*trajectory.points.rbegin());
+  trajectory_msgs::msg::JointTrajectory departure_trajectory =
+      create_sub_trajectory(trajectory.points.end() - 2, trajectory.points.end());
 
   return std::make_tuple(approach_trajectory, process_trajectory, departure_trajectory);
 }
