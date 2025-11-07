@@ -6,6 +6,7 @@ namespace snp_application
 {
 /**
  * @brief Loads a trajectory from a YAML file into a `joint_trajectory_msgs/JointTrajectory` message
+ * @ingroup bt_plugins
  */
 class LoadTrajectoryFromFileNode : public BT::SyncActionNode
 {

@@ -9,6 +9,7 @@ namespace snp_application
  * @details The approach trajectory consists of the first two points of the trajectory.
  * The process trajectory consists of points 1 through n-1.
  * The departure trajectory consists of points n-1 and n
+ * @ingroup bt_plugins
  */
 class ExtractApproachProcessDepartureTrajectoriesNode : public BT::SyncActionNode
 {
