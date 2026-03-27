@@ -21,14 +21,12 @@ Contains custom tool path planning GUI widgets and source code for the region of
 
 Contains a planning server based on `tesseract` for generating freespace and process motions; contains custom `tesseract` inverse kinematics plugins, planning task plugins, and planner profiles
 
-@section simulation_packages Simulation Packages
+@section simulation Simulation
 
-@subsection snp_motion_execution snp_motion_execution
+@subsection snp_simulation snp_simulation
 
-Contains files to simulate robotic motion
-
-@subsection snp_scanning snp_scanning
-
-Contains files to convert a YAML file into a robot scan path and to simulate `industrial_reconstruction`
+Contains scripts for to simulating robotic motion and surface reconstruction.
+The motion simulator provides a `FollowJointTrajectory` action server that simply bypasses the execution of motion and returns success.
+The surface reconstruction simulator returns a mesh that is loaded from a specified file.
 
 */
